@@ -1,0 +1,94 @@
+name: 构建Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 查看项目结构
+        run: |
+          echo "=== 项目根目录 ==="
+          ls -la
+          echo ""
+          echo "=== gradle目录 ==="
+          if [ -d "gradle" ]; then ls -la gradle/; fi
+          if [ -d "gradle/wrapper" ]; then ls -la gradle/wrapper/; fi
+      
+      - name: 设置JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+      
+      - name: 设置Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: 创建gradlew脚本（如果不存在）
+        run: |
+          if [ ! -f "gradlew" ]; then
+            echo "gradlew不存在，正在创建完整的gradlew脚本..."
+            cat > gradlew << 'GRADLEW_EOF'
+#!/bin/sh
+APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        JAVACMD=$JAVA_HOME/jre/sh/java
+    else
+        JAVACMD=$JAVA_HOME/bin/java
+    fi
+else
+    JAVACMD=java
+fi
+
+exec "$JAVACMD" $DEFAULT_JVM_OPTS -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+GRADLEW_EOF
+            echo "✓ gradlew脚本已创建"
+          else
+            echo "✓ gradlew文件已存在"
+          fi
+          chmod +x gradlew
+          echo "✓ gradlew权限已设置"
+          ls -la gradlew
+      
+      - name: 清理项目
+        run: ./gradlew clean
+      
+      - name: 构建Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+      
+      - name: 查找生成的APK
+        run: |
+          echo "=== 查找APK文件 ==="
+          find . -name "*.apk" -type f
+      
+      - name: 上传APK到Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 公安接处警平台-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      
+      - name: 获取APK信息
+        run: |
+          if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
+            echo "✓ APK构建成功！"
+            ls -lh app/build/outputs/apk/debug/app-debug.apk
+          else
+            echo "✗ APK构建失败"
+            exit 1
+          fi
+
