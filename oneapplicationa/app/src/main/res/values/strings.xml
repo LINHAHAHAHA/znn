@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">公安接处警平台</string>
+    <string name="start_record">开始录音</string>
+    <string name="stop_record">停止录音</string>
+    <string name="analyze">AI智能分析</string>
+    <string name="save">保存接警单</string>
+    <string name="clear">清空</string>
+    <string name="history">查看历史记录</string>
+    <string name="voice_input">语音接警</string>
+    <string name="ai_analysis">AI分析结果</string>
+    <string name="dispatch_info">接警单信息</string>
+    <string name="caller_phone">报警人电话</string>
+    <string name="caller_name">报警人姓名</string>
+    <string name="location">事发地点</string>
+    <string name="incident_time">事发时间</string>
+    <string name="involved_persons">涉及人员</string>
+    <string name="incident_description">事件描述</string>
+    <string name="suggested_action">处置预案建议</string>
+    <string name="incident_type">警情类型</string>
+    <string name="urgency_level">紧急程度</string>
+</resources>
+
