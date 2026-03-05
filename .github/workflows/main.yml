@@ -37,31 +37,26 @@ jobs:
       - name: 创建gradlew脚本（如果不存在）
         run: |
           if [ ! -f "gradlew" ]; then
-            echo "gradlew不存在，正在创建完整的gradlew脚本..."
-            cat > gradlew << 'GRADLEW_EOF'
-#!/bin/sh
-APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
-CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
-
-if [ -n "$JAVA_HOME" ] ; then
-    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-        JAVACMD=$JAVA_HOME/jre/sh/java
-    else
-        JAVACMD=$JAVA_HOME/bin/java
-    fi
-else
-    JAVACMD=java
-fi
-
-exec "$JAVACMD" $DEFAULT_JVM_OPTS -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
-GRADLEW_EOF
-            echo "✓ gradlew脚本已创建"
+            echo "gradlew不存在，正在创建..."
+            cat > gradlew << 'EOF'
+          #!/bin/sh
+          APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+          CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+          DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+          if [ -n "$JAVA_HOME" ] ; then
+              if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+                  JAVACMD=$JAVA_HOME/jre/sh/java
+              else
+                  JAVACMD=$JAVA_HOME/bin/java
+              fi
           else
-            echo "✓ gradlew文件已存在"
+              JAVACMD=java
+          fi
+          exec "$JAVACMD" $DEFAULT_JVM_OPTS -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+          EOF
+            echo "gradlew已创建"
           fi
           chmod +x gradlew
-          echo "✓ gradlew权限已设置"
           ls -la gradlew
       
       - name: 清理项目
